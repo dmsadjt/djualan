@@ -43,6 +43,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.djualan.ui.screen.AddNewProductScreen
+import com.example.djualan.ui.screen.HomeScreen
+import com.example.djualan.ui.screen.ProductScreen
 import com.example.djualan.ui.theme.DjualanTheme
 
 class MainActivity : ComponentActivity() {
@@ -71,100 +74,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun HomeScreen(navController: NavController) {
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        floatingActionButton = { Fab(modifier = Modifier, {navController.navigate("product")}) },
-        topBar = { TopAppBar(title = { Text("Djualan") }) })
-    { innerPadding ->
-        Text(modifier = Modifier.padding(innerPadding), text = "Djualan Main Page")
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ProductScreen(navController: NavController) {
-    Scaffold (
-        modifier = Modifier.fillMaxSize(),
-        floatingActionButton = {Fab(modifier = Modifier, {navController.navigate("addProduct")})},
-        topBar = { TopAppBar(title = {Text("Produk")})
-    }) { innerPadding ->
-        Text(modifier = Modifier.padding(innerPadding), text = "Djualan Product Page")
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddNewProductScreen(navController: NavController) {
-    Scaffold (
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = {Text("Add new product") },
-                actions = {
-                    IconButton(onClick = { /** TODO: Handle Save **/}) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add Product"
-                        )
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
-        var szName by remember { mutableStateOf("") }
-        var szPrice by remember { mutableStateOf("") }
-        var bActive by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier.padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            OutlinedTextField(
-                value = szName,
-                onValueChange = {szName = it},
-                label = { Text("Product Name")},
-                modifier = Modifier.fillMaxWidth().padding(8.dp)
-            )
-
-            OutlinedTextField(
-                value = szPrice,
-                onValueChange = {szPrice = it},
-                label = { Text("Product Price")},
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth().padding(8.dp)
-            )
-
-            Row (
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = bActive,
-                    onCheckedChange = { bActive = it }
-                )
-                Text("Active")
-            }
-        }
-    }
-}
-
-
-@Composable
-fun Fab(modifier: Modifier, action: () -> Unit) {
-    val context = LocalContext.current
-    FloatingActionButton(
-        modifier = modifier,
-        onClick = action,
-        shape = CircleShape,
-        containerColor = Color.Blue,
-        contentColor = Color.White,
-        content = {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Fab")
-        }
-    )
-}
 
 @Preview(showBackground = true)
 @Composable

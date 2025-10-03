@@ -25,5 +25,6 @@ data class Product (
     @PrimaryKey(autoGenerate = false) val szProductId : String,
     val szProductName : String,
     val decPrice : Double,
-    val bActive : Boolean
+    val bActive : Boolean,
+    val szImageUri : String?
 )
