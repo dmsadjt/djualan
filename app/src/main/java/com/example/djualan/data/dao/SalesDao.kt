@@ -1,3 +1,6 @@
+package com.example.djualan.data.dao
+
+import androidx.room.Dao
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Insert
@@ -5,9 +8,9 @@ import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Relation
-import com.example.djualan.data.dao.Product
 import java.time.LocalDateTime
 
+@Dao
 interface SalesDao {
     @Insert
     suspend fun addSale(sale: SaleData)

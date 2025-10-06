@@ -1,7 +1,7 @@
 package com.example.djualan.data.repository
 
-import SaleData
-import SalesDao
+import com.example.djualan.data.dao.SaleData
+import com.example.djualan.data.dao.SalesDao
 
 class SalesRepository(
     private val salesDao: SalesDao

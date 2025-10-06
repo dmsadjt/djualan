@@ -3,6 +3,7 @@ package com.example.djualan.ui.screen
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -18,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,7 +28,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,22 +38,59 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.djualan.R
+import com.example.djualan.R.*
+import com.example.djualan.data.dao.Product
+import com.example.djualan.data.repository.ProductRepository
+import com.example.djualan.viewmodel.ProductViewModel
+import com.example.djualan.viewmodel.factory.ProductViewModelFactory
+import java.util.UUID
 
 @RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddNewProductScreen(navController: NavController) {
+fun AddNewProductScreen(
+    navController: NavController,
+    repository: ProductRepository,
+    viewModel: ProductViewModel = viewModel(factory = ProductViewModelFactory(repository))
+) {
     val context = LocalContext.current
+    var szName by remember { mutableStateOf("") }
+    var szPrice by remember { mutableStateOf("") }
+    var bActive by remember { mutableStateOf(false) }
+    var szImageUri by remember { mutableStateOf<Uri?>(null)}
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { szUri : Uri? ->
+        szImageUri = szUri
+    }
     Scaffold (
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = {Text("Add new product") },
+                title = {Text(stringResource(string.label_add_new_product)) },
                 actions = {
-                    IconButton(onClick = { /** TODO: Handle Save **/}) {
+                    IconButton(onClick = {
+                        val productData = Product(
+                            szProductId = UUID.randomUUID().toString(),
+                            szProductName = szName,
+                            decPrice = szPrice.toDouble(),
+                            bActive = bActive,
+                            szImageUri = szImageUri?.toString()
+                        )
+
+                        viewModel.addProduct(productData) { bSuccess, szMessage ->
+                            val szMessage = if (bSuccess) context.getString(R.string.msg_product_added) else szMessage
+                            Toast.makeText(context, szMessage, Toast.LENGTH_SHORT).show()
+                            if(bSuccess)
+                                navController.popBackStack()
+                        }
+                    }) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Add Product"
@@ -62,17 +100,6 @@ fun AddNewProductScreen(navController: NavController) {
             )
         }
     ) { innerPadding ->
-        var szName by remember { mutableStateOf("") }
-        var szPrice by remember { mutableStateOf("") }
-        var bActive by remember { mutableStateOf(false) }
-        var szImageuri by remember { mutableStateOf<Uri?>(null)}
-
-        val launcher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.GetContent()
-        ) { szUri : Uri? ->
-            szImageuri = szUri
-        }
-
         Column(
             modifier = Modifier.padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -80,16 +107,20 @@ fun AddNewProductScreen(navController: NavController) {
             OutlinedTextField(
                 value = szName,
                 onValueChange = {szName = it},
-                label = { Text("Product Name")},
-                modifier = Modifier.fillMaxWidth().padding(8.dp)
+                label = { Text(stringResource(R.string.flabel_product_name))},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
             )
 
             OutlinedTextField(
                 value = szPrice,
                 onValueChange = {szPrice = it},
-                label = { Text("Product Price")},
+                label = { Text(stringResource(string.flabel_product_price))},
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth().padding(8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
             )
 
             Row (
@@ -99,15 +130,18 @@ fun AddNewProductScreen(navController: NavController) {
                     checked = bActive,
                     onCheckedChange = { bActive = it }
                 )
-                Text("Active")
+                Text(stringResource(string.flabel_active))
             }
 
-            Button(onClick = {launcher.launch("image/")}) {
+            Button(
+                onClick = {launcher.launch("image/")},
+                modifier = Modifier.padding(8.dp)
+            ) {
                 Text("Pick Image")
             }
 
-            szImageuri?.let {
-                val bitmap = remember(szImageuri) {
+            szImageUri?.let {
+                val bitmap = remember(szImageUri) {
                    try {
                        val source = ImageDecoder.createSource(context.contentResolver, it)
                        ImageDecoder.decodeBitmap(source)
@@ -121,19 +155,13 @@ fun AddNewProductScreen(navController: NavController) {
                         bitmap = it.asImageBitmap(),
                         contentDescription = "Product Image",
                         modifier = Modifier
+                            .padding(8.dp)
                             .fillMaxWidth()
                             .height(200.dp),
                         contentScale = ContentScale.Crop
                     )
                 }
-
             }
-
         }
     }
-}
-
-@Composable
-fun Button() {
-    TODO("Not yet implemented")
 }

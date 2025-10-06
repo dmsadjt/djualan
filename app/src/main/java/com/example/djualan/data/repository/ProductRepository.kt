@@ -22,27 +22,27 @@ class ProductRepository (
         }
     }
 
-    suspend fun addProduct(product: Product) : Result<Unit> {
+    suspend fun addProduct(productData: Product) : Result<Unit> {
         return try {
-            productDao.addProduct(product = product)
+            productDao.addProduct(productData = productData)
             Result.success(Unit)
         } catch(e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun updateProduct(product: Product) : Result<Unit> {
+    suspend fun updateProduct(productData: Product) : Result<Unit> {
         return try {
-            productDao.updateProduct(product)
+            productDao.updateProduct(productData)
             Result.success(Unit)
         } catch(e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun deleteProduct(szProductId: String) : Result<Unit> {
+    suspend fun deleteProduct(productData: Product) : Result<Unit> {
         return try {
-            productDao.deleteProduct(szProductId = szProductId)
+            productDao.deleteProduct(productData = productData)
             Result.success(Unit)
         } catch(e:Exception) {
             Result.failure(e)
